@@ -4,21 +4,24 @@ import { Link, useNavigate } from 'react-router-dom';
 import * as yup from 'yup';
 import CustomField from '../components/forms/CustomField';
 import Modal from '../components/Modal';
+import { useUser } from '../hooks/User';
 
 function Register() {
 
-  const [error, setError] = useState<boolean>(false);
-  const [errorMessage, setErrorMessage] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
+
+  const { register, message } = useUser();
 
   const navigate = useNavigate()
 
   useEffect(() => {
-    if (error) {
-      const modal = document.getElementById('error_modal');
-      (modal as HTMLDialogElement)?.showModal();
+    if (message) {
+      if (message.type === 'error') {
+        const modal = document.getElementById('error_modal');
+        (modal as HTMLDialogElement)?.showModal();
+      }
     }
-  }, [error]);
+  }, [message]);
 
   const [initialValues] = useState({
     firstname: "",
@@ -43,42 +46,30 @@ function Register() {
   const handleSubmit = async (values: typeof initialValues) => {
     setLoading(true);
     try {
-      console.log("Form values", values);
-      const response = await fetch(`${process.env.BACKEND_HOST}/register`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(values),
-      });
-      const data = await response.json();
-      if (response.ok) {
-        console.log('Success:', data);
+      const success = await register(values);
+      if (success) {
         navigate('/auth/login', {
           state: {
             message: {
               title: 'Compte créé',
-              message: 'Votre compte a bien été créé.<br><br>Veuillez consulter vos mails pour confirmer votre adresse email.<br><br>Une fois votre adresse email confirmée, vous pourrez vous connecter avec vos identifiants.',
+              message: 'Votre compte a bien été créé.<br /><br />Veuillez consulter vos mails pour confirmer votre adresse email.<br /><br />Une fois votre adresse email confirmée, vous pourrez vous connecter avec vos identifiants.',
               type: 'success'
             }
           }
         });
       } else {
-        console.error('Error bdd:', data);
-        setError(true);
-        setErrorMessage(data.error);
-        setLoading(false);
+        console.log('Register failed');
       }
     } catch (error) {
-      console.error('Error serveur:', error);
-      setError(true);
-      setErrorMessage('Une erreur est survenue');
+      console.error("Register error:", error);
+    } finally {
       setLoading(false);
     }
   };
+
   return (
     <>
-      <Modal id="error_modal" title="Oups ! Il semblerait qu'il y ait un problème" message={errorMessage} type="error" />
+      <Modal id="error_modal" title="Oups ! Il semblerait qu'il y ait un problème" message={message?.text || 'Une erreur s\'est produite'} type="error" />
 
       <Formik
         initialValues={initialValues}

@@ -1,16 +1,21 @@
+import { useEffect } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useUser } from "../../hooks/User";
 import ToggleTheme from "./ToggleTheme";
 
 const Header = () => {
 
-  const { isAuthentified, logout, loading } = useUser();
+  const { isAuthenticated, logout, loading } = useUser();
   const navigate = useNavigate();
 
   const handleLogout = () => {
     logout();
     navigate('/auth/login');
   }
+
+  useEffect(() => {
+    console.log('Header isAuthentified:', isAuthenticated);
+  }, [])
 
   return (
     <div className="navbar bg-base-100">
@@ -23,7 +28,7 @@ const Header = () => {
           {loading ? (
             <li><span className="loading loading-ring loading-md"></span></li>
           ) : (
-            isAuthentified ? (
+            isAuthenticated ? (
               <li><button onClick={handleLogout}>Déconnexion</button></li>
             ) : (
               <>
