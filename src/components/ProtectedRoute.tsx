@@ -10,7 +10,7 @@ const ProtectedRoute = ({ children }: {
         return <p>Loading...</p>; // ou un spinner de chargement
     }
 
-    return isAuthenticated ? <>{children}</> : <Navigate to="/login" />;
+    return isAuthenticated ? <>{children}</> : <Navigate to="/auth/login" />;
 };
 
 export default ProtectedRoute;

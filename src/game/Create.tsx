@@ -21,6 +21,7 @@ const Create = () => {
   const handleCreateGame = async (privateRoom: boolean) => {
     setLoading(true);
     if (socket && isConnected) {
+
       const response = await fetch(`${process.env.BACKEND_HOST}/game`, {
         method: 'POST',
         headers: {

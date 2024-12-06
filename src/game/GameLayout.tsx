@@ -6,12 +6,13 @@ import { WebSocketProvider } from "../context/WebSocketContext"
 import { useUser } from "../hooks/User"
 
 const GameLayout = () => {
-  const { isAuthentified, loading: userLoading } = useUser();
+  const { isAuthenticated, loading: userLoading } = useUser();
   const navigate = useNavigate();
 
   // Vérifier si l'utilisateur est connecté au site
   useEffect(() => {
-    if (!userLoading && !isAuthentified) {
+
+    if (!userLoading && !isAuthenticated) {
       console.log('Game Layout: User not authentified');
       navigate('/auth/login', {
         state: {
@@ -24,7 +25,11 @@ const GameLayout = () => {
         }
       });
     }
-  }, [isAuthentified, userLoading]);
+  }, [isAuthenticated, userLoading]);
+
+  if (userLoading) {
+    return <div>Loading...</div>
+  }
 
   return (
     <WebSocketProvider url={(process.env.BACKEND_HOST as string)}>
